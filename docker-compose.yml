@@ -2,7 +2,7 @@ version: '3.8'
 services:
 
   web01:
-    image: anti1346/ubuntu2204:init
+    image: anti1346/ubuntu2204:systemd
     restart: always
     container_name: web01
     hostname: web01
@@ -18,7 +18,7 @@ services:
         ipv4_address: 172.19.0.11
 
   web02:
-    image: anti1346/ubuntu2204:init
+    image: anti1346/ubuntu2204:systemd
     restart: always
     container_name: web02
     hostname: web02

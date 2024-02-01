@@ -48,109 +48,6 @@ EOF
     chmod 400 $HOME/.ssh/authorized_keys
 }
 
-generate_keepalived_config() {
-    cat <<EOF >> /etc/keepalived/keepalived.conf
-
-global_defs {
-    notification_email {
-        admin@example.com
-    }
-    notification_email_from admin@example.com
-    #smtp_server smtp.example.com
-    #smtp_connect_timeout 30
-    router_id LVS_DEVEL
-    enable_script_security
-    script_user root
-}
-
-vrrp_script haproxy_check {
-    script "/etc/keepalived/haproxy_check.sh"
-    interval 2
-    weight 2
-}
-
-vrrp_instance VI_1 {
-    state MASTER
-    interface eth0
-    virtual_router_id 51
-    priority 100
-    advert_int 1
-    authentication {
-        auth_type PASS
-        auth_pass 1111
-    }
-    virtual_ipaddress {
-        172.19.0.10/24 dev eth0 label eth0:1
-    }
-    track_script {
-        haproxy_check
-    }
-}
-EOF
-}
-
-generate_haproxy_config() {
-    cat <<EOF > /etc/haproxy/haproxy.cfg
-
-global
-    log         127.0.0.1 local2
-    pidfile     /var/run/haproxy.pid
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    maxconn     4000
-    user        haproxy
-    group       haproxy
-    daemon
-
-defaults
-    log                     global
-    mode                    http
-    option                  httplog
-    option                  dontlognull
-    option http-server-close
-    option forwardfor       except 127.0.0.0/8
-    option                  redispatch
-    retries                 3
-    timeout http-request    10s
-    timeout queue           1m
-    timeout connect         10s
-    timeout client          1m
-    timeout server          1m
-    timeout http-keep-alive 10s
-    timeout check           10s
-    maxconn                 3000
-
-frontend http-in
-    bind *:80
-    acl url_admin       path_beg       /admin
-    use_backend bk_admin     if url_admin
-    default_backend             bk_web
-
-frontend https-in
-    bind *:443 ssl crt /etc/ssl/ha_sangchul_kr/unified_ha_sangchul_kr.pem
-    acl url_admin       path_beg       /admin
-    use_backend bk_admin     if url_admin
-    default_backend             bk_web
-
-backend bk_web
-    balance     roundrobin
-    server      web1 172.19.0.11:80 check
-    server      web2 172.19.0.12:80 check
-
-backend bk_admin
-    balance     roundrobin
-    server      web1 172.19.0.11:80 check
-    server      web2 172.19.0.12:80 check
-
-listen stats
-    #bind *:1936
-    bind *:9000
-    stats enable
-    stats uri /haproxy_stats
-    stats refresh 10s
-EOF
-}
 
 ###############################################################################################################################
 ###############################################################################################################################
@@ -174,20 +71,17 @@ if ! dpkg -l | grep -q openssh-server; then
     sudo systemctl restart ssh.service
 fi
 
-# keepalived 패키지 설치
-if ! dpkg -l | grep -q keepalived; then
-    sudo apt-get install -y keepalived
-    sudo systemctl --now enable keepalived.service
-    sudo systemctl restart keepalived.service
-    generate_keepalived_config
+# nginx 패키지 설치
+if ! dpkg -l | grep -q nginx; then
+    sudo apt-get install -y nginx
+    sudo systemctl --now enable nginx
+    generate_index_html
 fi
 
-# haproxy 패키지 설치
-if ! dpkg -l | grep -q haproxy; then
-    sudo apt-get install -y haproxy
-    sudo systemctl --now enable haproxy.service
-    sudo systemctl restart haproxy.service
-    generate_haproxy_config
+# nginx 패키지 설치
+if ! dpkg -l | grep -q php8.1-fpm; then
+    sudo apt-get install -y php-fpm
+    sudo systemctl --now enable php8.1-fpm
 fi
 
 # vagrant 계정이 존재하지 않으면 vagrant_useradd.sh 스크립트 실행
@@ -195,8 +89,8 @@ if ! id "vagrant" &>/dev/null; then
     curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | bash
 fi
 
-if [ "$HOSTNAME" == "haproxy01" ]; then
-    #### haproxy01
+if [ "$HOSTNAME" == "ansible" ]; then
+    #### ansible
     #ssh-keygen -t rsa -b 2048 -C "deployment" -f $HOME/.ssh/id_rsa -N ""
     if [ ! -f "$HOME/.ssh/id_rsa" ]; then
         mkdir -m 700 $HOME/.ssh
@@ -205,30 +99,29 @@ if [ "$HOSTNAME" == "haproxy01" ]; then
         echo "$(whoami):$(whoami)" | chpasswd
     fi
     
-    if [ ! -d "/etc/ssl/ha_sangchul_kr" ]; then
-        mkdir -p /etc/ssl/ha_sangchul_kr
-        cd /etc/ssl/ha_sangchul_kr
-        openssl req \
-        -newkey rsa:4096 \
-        -x509 \
-        -sha256 \
-        -days 3650 \
-        -nodes \
-        -out ha_sangchul_kr.crt \
-        -keyout ha_sangchul_kr.key \
-        -subj "/C=KR/ST=Seoul/L=Jongno-gu/O=SangChul Co., Ltd./OU=Infrastructure Team/CN=ha.sangchul.kr"
-        cat ha_sangchul_kr.key ha_sangchul_kr.crt > unified_ha_sangchul_kr.pem
-    fi
+    # if [ ! -d "/etc/ssl/ha_sangchul_kr" ]; then
+    #     mkdir -p /etc/ssl/ha_sangchul_kr
+    #     cd /etc/ssl/ha_sangchul_kr
+    #     openssl req \
+    #     -newkey rsa:4096 \
+    #     -x509 \
+    #     -sha256 \
+    #     -days 3650 \
+    #     -nodes \
+    #     -out ha_sangchul_kr.crt \
+    #     -keyout ha_sangchul_kr.key \
+    #     -subj "/C=KR/ST=Seoul/L=Jongno-gu/O=SangChul Co., Ltd./OU=Infrastructure Team/CN=ha.sangchul.kr"
+    #     cat ha_sangchul_kr.key ha_sangchul_kr.crt > unified_ha_sangchul_kr.pem
 
-    echo -e "\n### SSL CERT DATES"
-    openssl x509 -in /etc/ssl/ha_sangchul_kr/ha_sangchul_kr.crt -noout -subject -dates
+    #     echo -e "\n### SSL CERT DATES"
+    #     openssl x509 -in /etc/ssl/ha_sangchul_kr/ha_sangchul_kr.crt -noout -subject -dates
+    # fi
 
-    echo -e "\n### SSL CERT COPY"
-    echo "scp -o StrictHostKeyChecking=no /etc/ssl/ha_sangchul_kr/unified_ha_sangchul_kr.pem root@172.19.0.3:/etc/ssl/ha_sangchul_kr/unified_ha_sangchul_kr.pem"
+    # echo -e "\n### SSL CERT COPY"
+    # echo "scp -o StrictHostKeyChecking=no /etc/ssl/ha_sangchul_kr/unified_ha_sangchul_kr.pem root@172.19.0.3:/etc/ssl/ha_sangchul_kr/unified_ha_sangchul_kr.pem"
 fi
 
-if [ "$HOSTNAME" == "haproxy02" ]; then
-    #### haproxy02
+if [ "$HOSTNAME" == "web01" -o "$HOSTNAME" == "web02" ]; then
     if [ ! -f "$HOME/.ssh/authorized_keys" ]; then
         mkdir -m 700 $HOME/.ssh
         # 함수 호출하여 authorized_keys 파일에 공개 키 추가
@@ -236,12 +129,9 @@ if [ "$HOSTNAME" == "haproxy02" ]; then
         echo "$(whoami):$(whoami)" | chpasswd
     fi
 
-    if [ ! -d "/etc/ssl/ha_sangchul_kr" ]; then
-        mkdir -p /etc/ssl/ha_sangchul_kr
-    fi
-
-    sudo sed -i.bak "s/state MASTER/state BACKUP/g" /etc/keepalived/keepalived.conf
-    sudo sed -i "s/priority 100/priority 99/g" /etc/keepalived/keepalived.conf
+    # if [ ! -d "/etc/ssl/ha_sangchul_kr" ]; then
+    #     mkdir -p /etc/ssl/ha_sangchul_kr
+    # fi
 fi
 
 echo -e "\n### rsyslog status"
@@ -250,19 +140,20 @@ sudo systemctl status rsyslog.service
 echo -e "\n### ssh status"
 sudo systemctl status ssh.service
 
-# Check keepalived configuration
-echo -e "\n### keepalived restart"
-if keepalived -t &>/dev/null; then
-    sudo systemctl restart keepalived.service
-    sudo systemctl status keepalived.service
+# Check nginx configuration
+echo -e "\n### nginx restart"
+if nginx -t &>/dev/null; then
+    sudo systemctl restart nginx.service
+    sudo systemctl status nginx.service
 fi
 
-# Check HAProxy configuration
-echo -e "\n### haproxy restart"
-if haproxy -c -f /etc/haproxy/haproxy.cfg -V &>/dev/null; then
-    sudo systemctl restart haproxy.service
-    sudo systemctl status haproxy.service
+# Check php8.1-fpm configuration
+echo -e "\n### php8.1-fpm restart"
+if php-fpm8.1 -t &>/dev/null; then
+    sudo systemctl restart php8.1-fpm.service
+    sudo systemctl status php8.1-fpm.service
 fi
+
 
 
 ### Shell Execute Command
