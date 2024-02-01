@@ -1,10 +1,12 @@
 #!/bin/bash
 
+user_name=vagrant
+
 ###################################################################
 ############################# 함수 파일 #############################
 ###################################################################
 generate_ssh_private_key() {
-    cat <<EOF > $HOME/.ssh/id_rsa
+    cat <<EOF > /home/$user_name/.ssh/id_rsa
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAQEAzjj1aU9WovLI/dGA6Ambo2Dsn3+dBAOwSR5uUGXFzEP+u9B+OlFS
@@ -33,14 +35,14 @@ DGDGdktw7XNHXxseYne0HdcMTbiVzPg65ojp7CRGOk8l2mIqCYK6/SpZD9wziWaIY4YtRI
 goGjeiD4+QLUZD0AAAAKZGVwbG95bWVudAE=
 -----END OPENSSH PRIVATE KEY-----
 EOF
-    chmod 600 $HOME/.ssh/id_rsa
+    chmod 600 /home/$user_name/.ssh/id_rsa
 }
 
 add_ssh_authorized_key() {
-    cat <<EOF >> $HOME/.ssh/authorized_keys
+    cat <<EOF >> /home/$user_name/.ssh/authorized_keys
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOOPVpT1ai8sj90YDoCZujYOyff50EA7BJHm5QZcXMQ/670H46UVJXiN3tMTlMu//caKZOBU6HTRCHg5Cg+CDbYjeOBgGCOSEk9kxNmRsE2rChdeQFLhaCcB56EKYyHJ9uYpbe72McWWszTDHpteySlBpE/7Yjne2D9T3TLSnwx3kdIZ1x4J6txwtw3BiSKn/wVxcxX5JmHAf+Fr6Xr1skOtY01ikIafWXs13RFRzLfIvrXUhmcfIpwSLfRiY36uOskSLomzK5ukqKMo8MqFH2rxbJSXWbpB7nq1VKW+8UPeVDblAXj79kun2h8rAT1TwYUEFJielFfl40Dber2pU5 deployment
 EOF
-    chmod 400 $HOME/.ssh/authorized_keys
+    chmod 400 /home/$user_name/.ssh/authorized_keys
 }
 ###################################################################
 ############################# 함수 파일 #############################
@@ -63,20 +65,18 @@ if ! id "vagrant" &>/dev/null; then
     curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | sudo bash
 fi
 
-su - vagrant
-
 if [ "$HOSTNAME" == "ansible" ]; then
     #### ansible
-    #ssh-keygen -t rsa -b 2048 -C "deployment" -f $HOME/.ssh/id_rsa -N ""
-    if [ ! -f "$HOME/.ssh/id_rsa" ]; then
-        mkdir -m 700 $HOME/.ssh
+    #ssh-keygen -t rsa -b 2048 -C "deployment" -f /home/$user_name/.ssh/id_rsa -N ""
+    if [ ! -f "/home/$user_name/.ssh/id_rsa" ]; then
+        mkdir -m 700 /home/$user_name/.ssh
         # 함수 호출하여 id_rsa 파일 생성
         generate_ssh_private_key
-        echo "$(whoami):$(whoami)" | chpasswd
+        echo "$user_name:$user_name" | chpasswd
     fi
 
-    if [ ! -f "$HOME/.ssh/authorized_keys" ]; then
-        mkdir -m 700 $HOME/.ssh
+    if [ ! -f "/home/$user_name/.ssh/authorized_keys" ]; then
+        mkdir -m 700 /home/$user_name/.ssh
         # 함수 호출하여 authorized_keys 파일에 공개 키 추가
         add_ssh_authorized_key
     fi
