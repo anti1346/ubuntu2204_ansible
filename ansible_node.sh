@@ -45,7 +45,7 @@ EOF
 
 
 # 필수 패키지 설치
-if ! dpkg -l | grep -q lsb-release; then
+if ! dpkg -l | grep -q ca-certificates; then
     sudo apt-get update
     sudo apt-get install -y lsb-release ca-certificates vim
 fi
