@@ -71,7 +71,7 @@ fi
 
 # vagrant 계정이 존재하지 않으면 vagrant_useradd.sh 스크립트 실행
 if ! id "vagrant" &>/dev/null; then
-    curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | sudo bash
 fi
 
 if [ "$HOSTNAME" == "ansible" ]; then
