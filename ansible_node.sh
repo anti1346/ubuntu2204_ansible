@@ -54,7 +54,6 @@ sudo apt-get update
 
 # 필수 패키지 설치
 if ! dpkg -l | grep -q openssh-server; then
-    # sudo apt-get install -y lsb-release ca-certificates
     sudo apt-get install -y lsb-release ca-certificates rsyslog openssh-server vim
     sudo systemctl --now enable rsyslog
     sudo systemctl --now enable ssh.service
@@ -63,7 +62,7 @@ if ! dpkg -l | grep -q openssh-server; then
 fi
 
 # tzdata, chrony 패키지 설치
-if ! dpkg -l | grep -q tzdata; then
+if ! dpkg -l | grep -q chrony; then
     sudo echo "Asia/Seoul" | sudo tee /etc/timezone
     sudo apt-get install -y tzdata chrony
     sudo timedatectl set-timezone Asia/Seoul
