@@ -63,10 +63,11 @@ if ! id "vagrant" &>/dev/null; then
     curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | sudo bash
 fi
 
+su - vagrant
+
 if [ "$HOSTNAME" == "ansible" ]; then
     #### ansible
     #ssh-keygen -t rsa -b 2048 -C "deployment" -f $HOME/.ssh/id_rsa -N ""
-    su - vagrant
     if [ ! -f "$HOME/.ssh/id_rsa" ]; then
         mkdir -m 700 $HOME/.ssh
         # 함수 호출하여 id_rsa 파일 생성
