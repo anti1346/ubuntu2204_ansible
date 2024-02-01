@@ -72,9 +72,8 @@ fi
 
 # tzdata, chrony 패키지 설치
 if ! dpkg -l | grep -q tzdata; then
-    sudo echo "Asia/Seoul" | sudo tee /etc/timezone
+    echo "Asia/Seoul" | sudo tee /etc/timezone
     sudo apt-get install -y tzdata chrony
-    sudo dpkg-reconfigure --frontend noninteractive tzdata
     sudo timedatectl set-timezone Asia/Seoul
     sudo systemctl --now enable chrony
 fi
@@ -137,4 +136,4 @@ sudo systemctl status ssh.service
 
 
 ### Shell Execute Command
-# curl -fsSL https://raw.githubusercontent.com/anti1346/ubuntu2204_ansible/main/ansible_node.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/anti1346/ubuntu22_keepalived_haproxy/main/install_haproxy.sh | bash
