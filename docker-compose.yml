@@ -38,8 +38,8 @@ services:
     restart: always
     container_name: ansible
     hostname: ansible
-    # volumes:
-    #   - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
+    volumes:
+      - /usr/share/zoneinfo/Asia/Seoul:/etc/localtime:ro
     ports:
       - "2222:22"
     networks:
