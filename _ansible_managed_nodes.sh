@@ -72,8 +72,9 @@ fi
 
 # tzdata, chrony 패키지 설치
 if ! dpkg -l | grep -q tzdata; then
-    echo "Asia/Seoul" | sudo tee /etc/timezone
+    sudo echo "Asia/Seoul" | sudo tee /etc/timezone
     sudo apt-get install -y tzdata chrony
+    sudo dpkg-reconfigure --frontend noninteractive tzdata
     sudo timedatectl set-timezone Asia/Seoul
     sudo systemctl --now enable chrony
 fi
