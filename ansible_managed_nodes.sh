@@ -49,6 +49,7 @@ if [ "$HOSTNAME" == "web01" -o "$HOSTNAME" == "web02" ]; then
         # 함수 호출하여 authorized_keys 파일에 공개 키 추가
         add_ssh_authorized_key
         sudo echo "$user_name:$user_name" | chpasswd
+        sudo chown -R "$user_name:$user_name" /home/$user_name/.ssh
     fi
 fi
 
