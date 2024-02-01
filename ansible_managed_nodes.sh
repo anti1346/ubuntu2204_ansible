@@ -7,7 +7,7 @@ user_name=vagrant
 ###################################################################
 add_ssh_authorized_key() {
     sudo cat <<EOF >> /home/$user_name/.ssh/authorized_keys
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDOOPVpT1ai8sj90YDoCZujYOyff50EA7BJHm5QZcXMQ/670H46UVJXiN3tMTlMu//caKZOBU6HTRCHg5Cg+CDbYjeOBgGCOSEk9kxNmRsE2rChdeQFLhaCcB56EKYyHJ9uYpbe72McWWszTDHpteySlBpE/7Yjne2D9T3TLSnwx3kdIZ1x4J6txwtw3BiSKn/wVxcxX5JmHAf+Fr6Xr1skOtY01ikIafWXs13RFRzLfIvrXUhmcfIpwSLfRiY36uOskSLomzK5ukqKMo8MqFH2rxbJSXWbpB7nq1VKW+8UPeVDblAXj79kun2h8rAT1TwYUEFJielFfl40Dber2pU5 deployment
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDW0VhWwYC1X6bfM1vIwKk983SdipCWUUOrEFHmKJs2Ug9boiqzB9ZikISeTXTnJccqgUuf8NntoFZWuV/X24hJEtqy6JqibJWMTIySDbJW0lp182+RU/hmJEL3tyTBynKoWsAQ7ZhER+OTgwNg9FZ6OzQaVY5tL1fIqc+X96Tbk1RYtMOZRKg7NyG9hFCpB1XqkHqersERQiEpF31WTnavjHvc4WCFYdNUDDp0FHd8+Pc3NG7KPtyxIZRrAtvf6Njb/ANJXK9glqFbFSh6B7mmV//aoHVtk6SWalnhh97WUtK+9d+4TL0qJr7CssW9yaE8+l7E632XeNt7o7X3KzHH deployment
 EOF
     sudo chmod 400 /home/$user_name/.ssh/authorized_keys
 }
