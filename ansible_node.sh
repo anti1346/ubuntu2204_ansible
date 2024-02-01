@@ -55,18 +55,14 @@ if ! id "$user_name" &>/dev/null; then
 fi
 
 if [ "$HOSTNAME" == "ansible" ]; then
-    #### ansible
-    sudo timedatectl set-timezone Asia/Seoul
-
     #ssh-keygen -t rsa -b 2048 -C "deployment" -f /home/$user_name/.ssh/id_rsa -N ""
     if [ ! -f "/home/$user_name/.ssh/id_rsa" ]; then
         sudo mkdir -m 700 /home/$user_name/.ssh
         # 함수 호출하여 id_rsa 파일 생성
         generate_ssh_private_key
     fi
-fi
 
-if [ "$HOSTNAME" == "web01" -o "$HOSTNAME" == "web02" ]; then
+elif [ "$HOSTNAME" == "web01" -o "$HOSTNAME" == "web02" ]; then
     # 필수 패키지 설치
     if ! dpkg -l | grep -q openssh-server; then
         sudo apt-get install -y rsyslog openssh-server
@@ -89,6 +85,8 @@ if [ "$HOSTNAME" == "web01" -o "$HOSTNAME" == "web02" ]; then
 
     echo -e "\n### ssh status"
     sudo systemctl status ssh.service
+else
+    echo "end"
 fi
 
 if [ ! -f "/home/$user_name/.ssh/authorized_keys" ]; then
