@@ -55,18 +55,19 @@ sudo apt-get update
 # 필수 패키지 설치
 if ! dpkg -l | grep -q lsb-release; then
     sudo apt-get install -y lsb-release ca-certificates vim
-fi
-
-# tzdata 패키지 설치
-if ! dpkg -l | grep -q tzdata; then
-    sudo echo "Asia/Seoul" | sudo tee /etc/timezone
-    sudo apt-get install -y tzdata
     sudo timedatectl set-timezone Asia/Seoul
 fi
 
+# # tzdata 패키지 설치
+# if ! dpkg -l | grep -q tzdata; then
+#     sudo echo "Asia/Seoul" | sudo tee /etc/timezone
+#     sudo apt-get install -y tzdata
+#     sudo timedatectl set-timezone Asia/Seoul
+# fi
+
 # vagrant 계정이 존재하지 않으면 vagrant_useradd.sh 스크립트 실행
 if ! id "vagrant" &>/dev/null; then
-    curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/anti1346/zz/main/etc/vagrant_useradd.sh | sudo bash
 fi
 
 if [ "$HOSTNAME" == "ansible" ]; then
@@ -109,4 +110,4 @@ fi
 
 
 ### Shell Execute Command
-# curl -fsSL https://raw.githubusercontent.com/anti1346/ubuntu22_keepalived_haproxy/main/install_haproxy.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/anti1346/ubuntu2204_ansible/main/ansible_control_node.sh | bash
